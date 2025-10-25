@@ -56,9 +56,12 @@ dependencies:
   intl: ^0.18.1 # Date formatting
   go_router: ^12.1.1 # Navigation
   nearby_connections: ^4.3.0
-  permission_handler: ^11.3.1
-  location: ^6.0.2
   device_info_plus: ^10.1.0
+
+   # For requesting permissions
+  permission_handler: ^11.3.1 # For requesting permissions
+  location: ^6.0.2  
+
 
 dev_dependencies:
   flutter_test:

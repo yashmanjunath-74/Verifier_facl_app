@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
 import 'package:verifier_facl/core/models/student.dart';
 import 'package:verifier_facl/core/providers/database_provider.dart';
 import 'package:verifier_facl/core/providers/services_provider.dart';
-
 
 class ScanStudentQrScreen extends ConsumerStatefulWidget {
   final String classId;
@@ -74,21 +74,24 @@ class _ScanStudentQrScreenState extends ConsumerState<ScanStudentQrScreen> {
         }
       }
     }
-    
+
     Future.delayed(const Duration(seconds: 2), () {
-       if (mounted) {
-         setState(() => _isProcessing = false);
-       }
+      if (mounted) {
+        setState(() => _isProcessing = false);
+      }
     });
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(leading: BackButton(onPressed: () => Navigator.of(context).pop(),), title: const Text('Scan Student QR Code')),
-      body: MobileScanner(
-        onDetect: _onDetect,
+      appBar: AppBar(
+        leading: BackButton(
+          onPressed: () => context.go('/roster/${widget.classId}'),
+        ),
+        title: const Text('Scan Student QR Code'),
       ),
+      body: MobileScanner(onDetect: _onDetect),
     );
   }
 }

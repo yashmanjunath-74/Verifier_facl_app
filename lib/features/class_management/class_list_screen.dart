@@ -26,7 +26,6 @@ class ClassListScreen extends ConsumerWidget {
 
     return Scaffold(
       appBar: AppBar(
-        leading: BackButton(onPressed: () => Navigator.of(context).pop(),),
         title: const Text('My Classes'),
         actions: [
           IconButton(
@@ -45,16 +44,9 @@ class ClassListScreen extends ConsumerWidget {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Icon(
-                    Icons.school_outlined,
-                    size: 80,
-                    color: Colors.grey,
-                  ),
+                  Icon(Icons.school_outlined, size: 80, color: Colors.grey),
                   SizedBox(height: 16),
-                  Text(
-                    'No classes found.',
-                    style: TextStyle(fontSize: 18),
-                  ),
+                  Text('No classes found.', style: TextStyle(fontSize: 18)),
                   SizedBox(height: 8),
                   Text(
                     "Tap '+' to create your first class.",

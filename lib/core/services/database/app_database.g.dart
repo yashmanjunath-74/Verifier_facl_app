@@ -527,7 +527,7 @@ class _$AttendanceRecordDao extends AttendanceRecordDao {
   @override
   Stream<List<AttendanceRecord>> watchRecordsBySessionId(String sessionId) {
     return _queryAdapter.queryListStream(
-        'SELECT * FROM AttendanceRecord WHERE session_id = ?1',
+        'SELECT * FROM AttendanceRecord WHERE session_id = ?1 ORDER BY date DESC',
         mapper: (Map<String, Object?> row) => AttendanceRecord(
             id: row['id'] as int?,
             recordId: row['record_id'] as String,
@@ -545,9 +545,20 @@ class _$AttendanceRecordDao extends AttendanceRecordDao {
   }
 
   @override
+  Future<AttendanceRecord?> findRecordForStudentInSession(
+    String studentId,
+    String sessionId,
+  ) async {
+    return _queryAdapter.query(
+        'SELECT * FROM AttendanceRecord WHERE student_id = ?1 AND session_id = ?2 LIMIT 1',
+        mapper: (Map<String, Object?> row) => AttendanceRecord(id: row['id'] as int?, recordId: row['record_id'] as String, classId: row['class_id'] as String, studentId: row['student_id'] as String, sessionId: row['session_id'] as String, date: _nonNullableDateTimeConverter.decode(row['date'] as int), status: row['status'] as String, verifiedAt: _dateTimeConverter.decode(row['verified_at'] as int?), createdAt: _nonNullableDateTimeConverter.decode(row['created_at'] as int)),
+        arguments: [studentId, sessionId]);
+  }
+
+  @override
   Future<void> insertAttendanceRecord(AttendanceRecord record) async {
     await _attendanceRecordInsertionAdapter.insert(
-        record, OnConflictStrategy.abort);
+        record, OnConflictStrategy.replace);
   }
 }
 

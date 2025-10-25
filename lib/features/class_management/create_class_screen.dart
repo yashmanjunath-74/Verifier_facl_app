@@ -1,6 +1,6 @@
-
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:uuid/uuid.dart';
 import 'package:verifier_facl/common_widgets/custom_button.dart';
 import 'package:verifier_facl/core/models/class_group.dart';
@@ -26,9 +26,9 @@ class _CreateClassScreenState extends ConsumerState<CreateClassScreen> {
 
       final faculty = ref.read(currentFacultyProvider);
       if (faculty == null) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Error: Not logged in.')),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(const SnackBar(content: Text('Error: Not logged in.')));
         setState(() => _isLoading = false);
         return;
       }
@@ -51,13 +51,13 @@ class _CreateClassScreenState extends ConsumerState<CreateClassScreen> {
         }
       } catch (e) {
         if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Failed to create class: $e')),
-          );
+          ScaffoldMessenger.of(
+            context,
+          ).showSnackBar(SnackBar(content: Text('Failed to create class: $e')));
         }
       } finally {
-        if(mounted) {
-           setState(() => _isLoading = false);
+        if (mounted) {
+          setState(() => _isLoading = false);
         }
       }
     }
@@ -74,7 +74,7 @@ class _CreateClassScreenState extends ConsumerState<CreateClassScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        leading: BackButton(onPressed: () => Navigator.of(context).pop(),),
+        leading: BackButton(onPressed: () => context.go('/classes')),
         title: const Text('Create New Class'),
       ),
       body: SingleChildScrollView(

@@ -7,11 +7,12 @@ import 'package:verifier_facl/core/models/student.dart';
 import 'package:verifier_facl/core/providers/database_provider.dart';
 import 'package:verifier_facl/core/providers/services_provider.dart';
 
-
 // A StreamProvider that takes a classId as an input (a "family")
 // and watches the students for only that class. This ensures the UI is always up to date.
-final studentStreamProvider =
-    StreamProvider.family<List<Student>, String>((ref, classId) {
+final studentStreamProvider = StreamProvider.family<List<Student>, String>((
+  ref,
+  classId,
+) {
   final db = ref.watch(databaseProvider);
   return db.studentDao.watchStudentsByClassId(classId);
 });
@@ -35,7 +36,7 @@ class StudentRosterScreen extends ConsumerWidget {
       isLoading: isLoading,
       child: Scaffold(
         appBar: AppBar(
-        leading: BackButton(onPressed: () => Navigator.of(context).pop(),),
+          leading: BackButton(onPressed: () => context.go('/classes')),
           title: const Text('Student Roster'),
           actions: [
             IconButton(
@@ -56,8 +57,11 @@ class StudentRosterScreen extends ConsumerWidget {
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Icon(Icons.group_off_outlined,
-                        size: 80, color: Colors.grey),
+                    Icon(
+                      Icons.group_off_outlined,
+                      size: 80,
+                      color: Colors.grey,
+                    ),
                     SizedBox(height: 16),
                     Text(
                       'No students enrolled yet.',
@@ -81,7 +85,8 @@ class StudentRosterScreen extends ConsumerWidget {
                 return CustomCard(
                   child: ListTile(
                     leading: CircleAvatar(
-                        child: Text(student.name.substring(0, 1))),
+                      child: Text(student.name.substring(0, 1)),
+                    ),
                     title: Text(student.name),
                     subtitle: Text(student.studentId),
                   ),
@@ -129,4 +134,3 @@ class StudentRosterScreen extends ConsumerWidget {
     );
   }
 }
-
