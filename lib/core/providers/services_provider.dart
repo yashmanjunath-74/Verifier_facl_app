@@ -2,8 +2,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:verifier_facl/core/providers/database_provider.dart';
 import 'package:verifier_facl/core/services/auth/auth_service.dart';
-
-import 'package:verifier_facl/core/services/crypto_service.dart';
+import 'package:verifier_facl/core/services/crypto/crypto_service.dart';
 import 'package:verifier_facl/core/services/p2p/nearby_connections_service.dart';
 import 'package:verifier_facl/core/services/p2p/p2p_manager.dart';
 

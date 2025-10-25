@@ -11,6 +11,7 @@ class StartSessionScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     return Scaffold(
       appBar: AppBar(
+        leading: BackButton(onPressed: () => Navigator.of(context).pop(),),
         title: const Text('Start Attendance Session'),
       ),
       body: Center(

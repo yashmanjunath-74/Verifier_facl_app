@@ -1,19 +1,20 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:intl/intl.dart';
+
 import 'package:verifier_facl/common_widgets/custom_card.dart';
 import 'package:verifier_facl/core/models/class_group.dart';
 import 'package:verifier_facl/core/providers/auth_provider.dart';
 import 'package:verifier_facl/core/providers/database_provider.dart';
 
-final _classesStreamProvider = StreamProvider<List<ClassGroup>>((ref) {
+// This StreamProvider will automatically watch for changes in the classes table
+final classesStreamProvider = StreamProvider<List<ClassGroup>>((ref) {
   final db = ref.watch(databaseProvider);
   final faculty = ref.watch(currentFacultyProvider);
   if (faculty != null) {
     return db.classGroupDao.watchAllClassesByFacultyId(faculty.facultyId);
   }
-  return Stream.value([]);
+  return Stream.value([]); // Return an empty stream if not logged in
 });
 
 class ClassListScreen extends ConsumerWidget {
@@ -21,15 +22,17 @@ class ClassListScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final classesStream = ref.watch(_classesStreamProvider);
+    final classesStream = ref.watch(classesStreamProvider);
 
     return Scaffold(
       appBar: AppBar(
+        leading: BackButton(onPressed: () => Navigator.of(context).pop(),),
         title: const Text('My Classes'),
         actions: [
           IconButton(
             icon: const Icon(Icons.logout),
             onPressed: () {
+              // This will log the user out and the router will automatically redirect to the login screen
               ref.read(authNotifierProvider.notifier).logout();
             },
           ),
@@ -38,34 +41,44 @@ class ClassListScreen extends ConsumerWidget {
       body: classesStream.when(
         data: (classes) {
           if (classes.isEmpty) {
-            return Center(
+            return const Center(
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  const Text('No classes found.'),
-                  const SizedBox(height: 16),
-                  ElevatedButton.icon(
-                    icon: const Icon(Icons.add),
-                    label: const Text('Create Your First Class'),
-                    onPressed: () => context.go('/create-class'),
+                  Icon(
+                    Icons.school_outlined,
+                    size: 80,
+                    color: Colors.grey,
+                  ),
+                  SizedBox(height: 16),
+                  Text(
+                    'No classes found.',
+                    style: TextStyle(fontSize: 18),
+                  ),
+                  SizedBox(height: 8),
+                  Text(
+                    "Tap '+' to create your first class.",
+                    style: TextStyle(color: Colors.grey),
                   ),
                 ],
               ),
             );
           }
+          // Display the list of classes
           return ListView.builder(
             padding: const EdgeInsets.all(8.0),
             itemCount: classes.length,
             itemBuilder: (context, index) {
               final classGroup = classes[index];
               return CustomCard(
-                onTap: () => context.go('/roster/${classGroup.classId}'),
+                onTap: () {
+                  // NEW: Navigate to the student roster for this class
+                  context.go('/roster/${classGroup.classId}');
+                },
                 child: ListTile(
                   title: Text(classGroup.className),
                   subtitle: Text(classGroup.courseCode),
-                  trailing: Text(
-                    DateFormat.yMMMd().format(classGroup.createdAt),
-                  ),
+                  trailing: const Icon(Icons.chevron_right),
                 ),
               );
             },
@@ -75,7 +88,10 @@ class ClassListScreen extends ConsumerWidget {
         error: (err, stack) => Center(child: Text('Error: $err')),
       ),
       floatingActionButton: FloatingActionButton.extended(
-        onPressed: () => context.go('/create-class'),
+        onPressed: () {
+          // NEW: Navigate to the create class screen
+          context.go('/create-class');
+        },
         label: const Text('New Class'),
         icon: const Icon(Icons.add),
       ),

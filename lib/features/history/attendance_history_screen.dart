@@ -10,6 +10,7 @@ class AttendanceHistoryScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        leading: const BackButton(),
         title: const Text('Attendance History'),
       ),
       body: const Center(

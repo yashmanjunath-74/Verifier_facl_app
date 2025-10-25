@@ -2,7 +2,8 @@
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:uuid/uuid.dart';
 import 'package:verifier_facl/core/models/faculty.dart';
-import 'package:verifier_facl/core/services/crypto_service.dart';
+import 'package:verifier_facl/core/services/crypto/crypto_service.dart';
+
 import 'package:verifier_facl/core/services/database/app_database.dart';
 
 class AuthService {

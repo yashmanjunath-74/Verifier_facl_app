@@ -5,51 +5,89 @@ import 'package:verifier_facl/core/models/student.dart';
 import 'package:verifier_facl/core/providers/database_provider.dart';
 import 'package:verifier_facl/core/providers/services_provider.dart';
 
-class ScanStudentQrScreen extends ConsumerWidget {
+
+class ScanStudentQrScreen extends ConsumerStatefulWidget {
   final String classId;
   const ScanStudentQrScreen({super.key, required this.classId});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    return Scaffold(
-      appBar: AppBar(title: const Text('Scan Student QR Code')),
-      body: MobileScanner(
-        onDetect: (capture) async {
-          final List<Barcode> barcodes = capture.barcodes;
-          if (barcodes.isNotEmpty) {
-            final String? qrData = barcodes.first.rawValue;
-            if (qrData != null) {
-              final cryptoService = ref.read(cryptoServiceProvider);
-              final scaffoldMessenger = ScaffoldMessenger.of(context);
-              final navigator = Navigator.of(context);
+  ConsumerState<ScanStudentQrScreen> createState() =>
+      _ScanStudentQrScreenState();
+}
 
-              try {
-                final studentData = cryptoService.parseQrData(qrData);
+class _ScanStudentQrScreenState extends ConsumerState<ScanStudentQrScreen> {
+  bool _isProcessing = false;
 
-                final student = Student(
-                  studentId: studentData['studentId']!,
-                  name: studentData['name']!,
-                  publicKey: studentData['publicKey']!,
-                  createdAt: DateTime.now(),
-                  enrolledAt: DateTime.now(),
-                  classId: classId,
-                );
+  Future<void> _onDetect(BarcodeCapture capture) async {
+    if (_isProcessing) return;
+    setState(() => _isProcessing = true);
 
-                final db = ref.read(databaseProvider);
-                await db.studentDao.insertStudent(student);
+    final List<Barcode> barcodes = capture.barcodes;
+    if (barcodes.isNotEmpty && barcodes.first.rawValue != null) {
+      final String qrData = barcodes.first.rawValue!;
+      // Correctly read the cryptoService instance from the provider
+      final cryptoService = ref.read(cryptoServiceProvider);
+      final db = ref.read(databaseProvider);
 
-                scaffoldMessenger.showSnackBar(
-                  SnackBar(content: Text('Student ${student.name} enrolled.')),
-                );
-                navigator.pop();
-              } catch (e) {
-                scaffoldMessenger.showSnackBar(
-                  const SnackBar(content: Text('Invalid QR Code.')),
-                );
-              }
-            }
+      final studentData = cryptoService.parseStudentQR(qrData);
+
+      if (studentData != null) {
+        try {
+          final newStudent = Student(
+            studentId: studentData['studentId']!,
+            name: studentData['name']!,
+            classId: widget.classId,
+            publicKey: studentData['publicKey']!,
+            createdAt: DateTime.now(),
+            enrolledAt: DateTime.now(),
+          );
+
+          await db.studentDao.insertStudent(newStudent);
+
+          if (mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text('Successfully enrolled ${newStudent.name}'),
+                backgroundColor: Colors.green,
+              ),
+            );
+            Navigator.of(context).pop();
           }
-        },
+        } catch (e) {
+          if (mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text('Error saving student: $e'),
+                backgroundColor: Colors.red,
+              ),
+            );
+          }
+        }
+      } else {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Invalid QR Code Format'),
+              backgroundColor: Colors.red,
+            ),
+          );
+        }
+      }
+    }
+    
+    Future.delayed(const Duration(seconds: 2), () {
+       if (mounted) {
+         setState(() => _isProcessing = false);
+       }
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(leading: BackButton(onPressed: () => Navigator.of(context).pop(),), title: const Text('Scan Student QR Code')),
+      body: MobileScanner(
+        onDetect: _onDetect,
       ),
     );
   }

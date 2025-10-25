@@ -59,6 +59,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
 
     return Scaffold(
       appBar: AppBar(
+        leading: const BackButton(),
         title: const Text('Create Faculty Account'),
       ),
       body: Center(

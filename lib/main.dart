@@ -1,21 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:verifier_facl/core/navigation/app_router.dart';
 import 'package:verifier_facl/core/providers/auth_provider.dart';
 import 'package:verifier_facl/core/providers/database_provider.dart';
-
-
 import 'package:verifier_facl/features/auth/login_screen.dart';
 import 'package:verifier_facl/features/class_management/class_list_screen.dart';
 
-
 Future<void> main() async {
-  // 2. Ensure Flutter bindings are initialized before any async operations
+  // Ensure Flutter bindings are initialized before any async operations
   WidgetsFlutterBinding.ensureInitialized();
 
-  // 3. Initialize the database BEFORE running the app
+  // Initialize the database BEFORE running the app
   final database = await initDatabase();
 
-  // 4. Pass the initialized database to the app
+  // Pass the initialized database to the app
   runApp(
     ProviderScope(
       overrides: [
@@ -32,7 +30,11 @@ class VerifierFacultyApp extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    return MaterialApp(
+    // We watch the provider to get the router instance
+    final router = ref.watch(routerProvider);
+
+    // We use MaterialApp.router instead of the default MaterialApp
+    return MaterialApp.router(
       title: 'Verifier Faculty App',
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
@@ -48,11 +50,13 @@ class VerifierFacultyApp extends ConsumerWidget {
         brightness: Brightness.dark,
       ),
       themeMode: ThemeMode.system,
-      home: const AuthWrapper(),
+      // We pass our router configuration to the app
+      routerConfig: router,
     );
   }
 }
 
+// This AuthWrapper is still used by our router for the initial splash route
 class AuthWrapper extends ConsumerWidget {
   const AuthWrapper({super.key});
 
@@ -72,3 +76,4 @@ class AuthWrapper extends ConsumerWidget {
     );
   }
 }
+

@@ -74,6 +74,7 @@ class _CreateClassScreenState extends ConsumerState<CreateClassScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        leading: BackButton(onPressed: () => Navigator.of(context).pop(),),
         title: const Text('Create New Class'),
       ),
       body: SingleChildScrollView(
